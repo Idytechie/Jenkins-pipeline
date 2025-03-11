@@ -5,6 +5,7 @@ pipeline{
             steps{
                 sh 'echo "clone repo"'
                 sh 'uname -r'
+                sh 'nproc'
             }
         }
 stage('test'){
