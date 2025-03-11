@@ -11,19 +11,33 @@ pipeline {
 
    }
 
-            }
-    
-        stage('dockerLogin'){
+   stages{
+    stage('Git Checkout'){
+        // clone the repository
             steps{
-                sh 'aws ecr get-login-password --region $AWS_REGION | \
-                docker login --username AWS \
-                --password-stdin 796973504296.dkr.ecr.us-east-1.amazonaws.com'
+                git branch: "${BRANCH_NAME}", credentialsId: "${GIT_CRED}", \
+                url: "${GIT_PROJECT_URL}"
             }
         }
-stage('dockerImageBuild'){
+        
+    stage('CodeScan'){
+        steps{
+            sh "trivy fs --format table -o maven_dependency.html ."
+       
+           
+        }
+    }
+    /*
+    stage('dockerLogin'){
+        steps{
+            sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS \
+            --password-stdin $ECR_REPO"
+        }
+    }
+    stage('dockerImageBuild'){
         steps{
             sh 'docker build -t jenkins-ci .'
-            sh 'docker build -t imageversion .'
+            sh 'docker build -t imageversion . '
         }
 }
     stage('dockerImageTag'){
@@ -32,9 +46,9 @@ stage('dockerImageBuild'){
              $IMAGE_ECR_REPO:latest"
             sh "docker tag imageversion \
             $IMAGE_ECR_REPO:v1.$BUILD_NUMBER"
-            }
-    }
-         
+        }    
+        }
+    
     stage('pushImage'){
         steps{
             sh "docker push \
@@ -44,4 +58,5 @@ stage('dockerImageBuild'){
         }
     }
     */
-    
+   } 
+   }
